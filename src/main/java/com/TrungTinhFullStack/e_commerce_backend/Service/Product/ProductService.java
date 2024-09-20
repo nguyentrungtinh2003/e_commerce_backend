@@ -2,6 +2,7 @@ package com.TrungTinhFullStack.e_commerce_backend.Service.Product;
 
 import com.TrungTinhFullStack.e_commerce_backend.Model.Product;
 import com.TrungTinhFullStack.e_commerce_backend.Request.AddProductRequest;
+import com.TrungTinhFullStack.e_commerce_backend.Request.UpdateProductRequest;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ public interface ProductService {
     List<Product> getAllProduct();
     Product getProductById(Long id);
     void deleteProduct(Long id);
-    void updateProduct(Long id, Product product);
+    Product updateProduct(Long id, UpdateProductRequest request);
     List<Product> getProductsByCategory(String category);
     List<Product> getProductsByBrand(String brand);
     List<Product> getProductsByCategoryAndBrand(String category, String brand);

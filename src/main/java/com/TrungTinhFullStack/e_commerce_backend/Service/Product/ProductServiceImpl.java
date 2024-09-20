@@ -3,22 +3,33 @@ package com.TrungTinhFullStack.e_commerce_backend.Service.Product;
 import com.TrungTinhFullStack.e_commerce_backend.Exception.ProductNotFoundException;
 import com.TrungTinhFullStack.e_commerce_backend.Model.Category;
 import com.TrungTinhFullStack.e_commerce_backend.Model.Product;
+import com.TrungTinhFullStack.e_commerce_backend.Repository.CategoryRepository;
 import com.TrungTinhFullStack.e_commerce_backend.Repository.ProductRepository;
 import com.TrungTinhFullStack.e_commerce_backend.Request.AddProductRequest;
+import com.TrungTinhFullStack.e_commerce_backend.Request.UpdateProductRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService{
 
     private final ProductRepository productRepository;
+    private final CategoryRepository caterogyRepository;
 
     @Override
     public Product addProduct(AddProductRequest request) {
-        return null;
+
+        Category category = Optional.ofNullable(caterogyRepository.findByName(request.getCategory().getName()))
+                .orElseGet(() -> {
+            Category category1 = new Category(request.getCategory().getName());
+            return caterogyRepository.save(category1);
+        });
+        request.setCategory(category);
+        return productRepository.save(createProduct(request,category));
     }
 
     private Product createProduct(AddProductRequest request, Category category) {
@@ -51,8 +62,23 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public void updateProduct(Long id, Product product) {
+    public Product updateProduct(Long id, UpdateProductRequest request) {
+        return productRepository.findById(id)
+                .map(existingProduct -> updateExistingProduct(existingProduct,request))
+                .map(productRepository::save)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found !"));
+    }
 
+    private Product updateExistingProduct(Product existingProduct, UpdateProductRequest request) {
+        existingProduct.setName(request.getName());
+        existingProduct.setBrand(request.getBrand());
+        existingProduct.setPrice(request.getPrice());
+        existingProduct.setInventory(request.getInventory());
+        existingProduct.setDescription(request.getDescription());
+
+        Category category = caterogyRepository.findByName(request.getCategory().getName());
+        existingProduct.setCategory(category);
+        return existingProduct;
     }
 
     @Override
