@@ -1,6 +1,7 @@
 package com.TrungTinhFullStack.e_commerce_backend.Controller;
 
 import com.TrungTinhFullStack.e_commerce_backend.Dto.ImageDto;
+import com.TrungTinhFullStack.e_commerce_backend.Exception.ImageNotFoundException;
 import com.TrungTinhFullStack.e_commerce_backend.Model.Image;
 import com.TrungTinhFullStack.e_commerce_backend.Response.ApiResponse;
 import com.TrungTinhFullStack.e_commerce_backend.Service.Image.ImageService;
@@ -43,4 +44,31 @@ public class ImageController {
 
     }
 
+    @PutMapping("/image/{imageId}/update")
+    public ResponseEntity<ApiResponse> updateImage(@PathVariable Long imageId, @RequestBody MultipartFile file) {
+        try {
+            Image image = imageService.getImageById(imageId);
+            if(image != null) {
+                imageService.updateImage(file,imageId);
+                return ResponseEntity.ok(new ApiResponse("Update success !", null));
+            }
+        } catch(ImageNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Image not found !",null));
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Update failed !",HttpStatus.INTERNAL_SERVER_ERROR));
+    }
+
+    @DeleteMapping("/image/{imageId}/delete")
+    public ResponseEntity<ApiResponse> deleteImage(@PathVariable Long imageId) {
+        try {
+            Image image = imageService.getImageById(imageId);
+            if(image != null) {
+                imageService.deleteImage(imageId);
+                return ResponseEntity.ok(new ApiResponse("Delete success !", null));
+            }
+        } catch(ImageNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Image not found !",null));
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Delete failed !",HttpStatus.INTERNAL_SERVER_ERROR));
+    }
 }
